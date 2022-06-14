@@ -29,11 +29,13 @@
 
 筆者が述べていますが、「クラスが単体で正常動作する設計にする」ことはオブジェクト指向を考える上で大切な考え方です。`単体で正常動作`するとはどういうことか、解説していきます。
 
-### 1. データとそのデータの処理をまとめよう！
+### 1. データとそのデータの処理をクラス内にまとめよう！
 
 - 👿 [悪いクラスの構造](https://github.com/kdr250/My2DGameSample/commit/6e774a32911db140935317ec55185caa2fb0f94b)
   - クラスのインスタンス変数を操作するロジックが、全く別のクラスに実装されている
     - 悪い理由: 重複コード、修正漏れ、可読性の低下が発生する。
+
+※ hitPointを定義しているクラスは[こちら](https://github.com/kdr250/My2DGameSample/blob/f44863b1a2f2fb10f544d3d4cf33a6c0000c2b7a/src/main/java/entity/Entity.java#L41)
 ```
 public class ItemPotionRed extends Entity {
 
@@ -52,8 +54,11 @@ public class ItemPotionRed extends Entity {
   public void use(Entity entity) {
     gp.gameState = gp.dialogState;
     gp.ui.currentDialog = "You drink the " + name + "!\nYour life has been recovered by " + recoveryAmount + ".";
-    /** ×リスト2.8 どこかに書かれるヒットポイント回復ロジック */
-    entity.hitPoint = entity.hitPoint + recoveryAmount;
+    /** 
+     * ×リスト2.8 どこかに書かれるヒットポイント回復ロジック
+     * (正)Entityクラスに回復する関数を実装する
+     */
+    entity.hitPoint = entity.hitPoint + recoveryAmount; 
     if (gp.player.hitPoint > gp.player.maxHitPoint) {
       gp.player.hitPoint = gp.player.maxHitPoint;
     }
@@ -68,7 +73,7 @@ public class ItemPotionRed extends Entity {
 - 👼 良いクラスの構造
   - インスタンス変数に対して操作するメソッドをクラス内に保持している(不正状態から防御)
     - 良い理由: 重複コードが減り(なくしたい)、仕様変更などの処理修正をするのが楽になり、修正漏れも防ぐことができる。
-### 2. クラスの責務はクラス内で完結させよう！
+### 2. 初期設定不要なインスタンスを作れるようにしよう！
 
 - 👿 悪いクラスの構造
   - 他のクラスに初期化してもらう必要がある。インスタンスを作成した後に変数に値を入れるする必要があるなど、初期設定が必要な状態。
@@ -127,7 +132,7 @@ public class AttackPower {
 
 - 👼 良いクラスの構造
   - インスタンス変数が不変(イミュータブル)な状態になっている。値を変更したい場合は変更する値を引数に持った関数を作成し、引数の値をコンストラクタでセットした新たなインスタンスを返り値とする。
-    - 良い理由: インスタンス変数の初期状態を保つことができる。副作用を防ぐことができる(todo もっと詳しく)。
+    - 良い理由: インスタンス変数の初期状態を保つことができ、副作用を防ぐことができる。
 
 
 # おわりに
