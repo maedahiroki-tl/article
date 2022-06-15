@@ -23,7 +23,7 @@
 [仙塲 大也. 良いコード／悪いコードで学ぶ設計入門保守しやすい　成長し続けるコードの書き方](https://www.amazon.co.jp/dp/B09Y1MWK9N/ref=dp-kindle-redirect?_encoding=UTF8&btkr=1)
 
 # 内容
-こちらが今回作成したゲームの実際のコードになります。
+今回作成したゲームの実際のコードになります。
 https://github.com/kdr250/good-code-bad-code-sample
 
 こちらのコードでクソゲーになってしまっている原因を現場でありそうなシチュエーションで解説していきます。
