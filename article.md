@@ -1,15 +1,14 @@
 # はじめに
 
-良いコード/悪いコードで学ぶ設計入門（ミノ駆動本）を読んで、これは初心者の必読本だ!と感じ、紹介するために記事を書きました。本の内容の一部である正しいクラスの作り方について具体例を用いて解説します。
+良いコード/悪いコードで学ぶ設計入門（ミノ駆動本）を読み、悪いコードがどれほど悪影響をおよぼすのか、良いコードでどれだけ改善できるのかを実証していくために実際にゲーム作ってみました。
+今回は悪いコードをピックアップして実装に取り入れ、クソゲーになってしまう原因を紹介していきます。
 
-初心者： 一度でも一からコードを書いて動くものを作ったことがある方 ~
 
 ### 読むべき人
 
-- コードレビューしろと言われても何を基準にレビューをすればいいかわからない方。
-- 共通処理を作れと言われても何からどう作ればいいかわからない方。
-
-※ オブジェクト指向を理解している方にとっては当前の内容になります。
+- ミノ駆動本を読んだけどいまいちピンとこなかった人
+- 悪いコードのヤバさが分からない、良いコードのメリットが実感できない
+- 部分的なコードでは現実感が湧かなかった人
 
 ### 前提
 
@@ -24,115 +23,38 @@
 [仙塲 大也. 良いコード／悪いコードで学ぶ設計入門保守しやすい　成長し続けるコードの書き方](https://www.amazon.co.jp/dp/B09Y1MWK9N/ref=dp-kindle-redirect?_encoding=UTF8&btkr=1)
 
 # 内容
+こちらが今回作成したゲームの実際のコードになります。
+https://github.com/kdr250/My2DGameSample
 
-## クラスの設計方法
+こちらのコードでクソゲーになってしまっている原因を現場でありそうなシチュエーションで解説していきます。
 
-筆者が述べていますが、「クラスが単体で正常動作する設計にする」ことはオブジェクト指向を考える上で大切な考え方です。`単体で正常動作`するとはどういうことか、解説していきます。
+<br>
 
-### 1. データとそのデータの処理をクラス内にまとめよう！
+### 仕様変更で新技追加！
+PM ) ◯◯くん、このゲームで新しく新しい技を追加することになった。実装お願いできるかい？
 
-- 👿 [悪いクラスの構造](https://github.com/kdr250/My2DGameSample/commit/6e774a32911db140935317ec55185caa2fb0f94b)
-  - クラスのインスタンス変数を操作するロジックが、全く別のクラスに実装されている
-    - 悪い理由: 重複コード、修正漏れ、可読性の低下が発生する。
+◯◯ ）承知しました！追加しておきます！
 
-※ hitPointを定義しているクラスは[こちら](https://github.com/kdr250/My2DGameSample/blob/f44863b1a2f2fb10f544d3d4cf33a6c0000c2b7a/src/main/java/entity/Entity.java#L41)
-```
-public class ItemPotionRed extends Entity {
+.....
 
-  public ItemPotionRed(GamePanel gp) {
-    super(gp);
-    this.gp = gp;
+◯◯ ）よし、魔法系の技だから[MagicManagerクラス](https://github.com/kdr250/My2DGameSample/blob/a58c9971287de5b182d51363010e6f11bd6b7808/src/main/java/MagicManager.java)見ておけばいいか。追加完了。実行!!
 
-    type = typeConsumable;
-    name = "Red Potion";
-    recoveryAmount = 5;
-    down1 = setup("objects/potion_red", gp.tileSize, gp.tileSize);
-    description = "[" + name + "]\nHeals you life by" + recoveryAmount + ".";
-  }
+.....
 
-  @Override
-  public void use(Entity entity) {
-    gp.gameState = gp.dialogState;
-    gp.ui.currentDialog = "You drink the " + name + "!\nYour life has been recovered by " + recoveryAmount + ".";
-    /** 
-     * ×リスト2.8 どこかに書かれるヒットポイント回復ロジック
-     * (正)Entityクラスに回復する関数を実装する
-     */
-    entity.hitPoint = entity.hitPoint + recoveryAmount; 
-    if (gp.player.hitPoint > gp.player.maxHitPoint) {
-      gp.player.hitPoint = gp.player.maxHitPoint;
-    }
-    gp.playSE(2);
-  }
+◯◯ ）ん？ダメージゼロ..なぜだ...
 
-  @Override
-  public void setAction() {
-  }
-}
-```
-- 👼 良いクラスの構造
-  - インスタンス変数に対して操作するメソッドをクラス内に保持している(不正状態から防御)
-    - 良い理由: 重複コードが減り(なくしたい)、仕様変更などの処理修正をするのが楽になり、修正漏れも防ぐことができる。
-### 2. 初期設定不要なインスタンスを作れるようにしよう！
+![地獄の業火.gif](https://qiita-image-store.s3.ap-northeast-1.amazonaws.com/0/2708735/80460d4a-b5a5-c721-efb7-8344b65b42e3.gif)
 
-- 👿 悪いクラスの構造
-  - 他のクラスに初期化してもらう必要がある。インスタンスを作成した後に変数に値を入れるする必要があるなど、初期設定が必要な状態。
-    - 悪い理由: NPE が発生する可能性がある。
-- 👼 良いクラスの構造
-  - コンストラクタで値を設定する。
-    - 良い理由: 初期化するときに引数に値を入れなければコンパイルエラーが発生する構造になるので NPE が発生しない。
+<br>
 
-### 3. 変数の値は書き換えられないようにしよう！
+ミノ駆動本の中に`6.2.5条件分岐を１箇所にまとめる`という章があります。
+その中に以下文章が書かれています。
+>ソフトウェアシステムが選択肢を提供しなければならないとき、そのシステムの中の1つのモジュールだけがその選択肢のすべてを把握すべきである。
 
-👿 [悪いクラスの構造](https://github.com/kdr250/My2DGameSample/commit/de8a29c64be4fcff0e993e5b8a9aedc8148da72e#diff-daa4914f1ad718ed386c63b5fc0c32264e24258f53549797a130f5ac1b142112)
+<br>
+この内容は、「同じ条件文を散乱させないようにしましょう。」という考え方で、散乱させてしまうと起こりうるミスとしては「条件文が書かれている場所が全て把握できず、新規で機能実装をする時などに条件文に条件を追加し忘れてしまう。」などが挙げられます。
 
-- インスタンス変数が可変(ミュータブル)な状態になっている。
-  - 悪い理由: 初期値がわからなくなる。いつどこで変更されたか分かりづらいので、その変数の値の状態を見失い、意図しない値に書き変わってしまう可能性がある。
+こういったミスが起こりうるコードはできるだけ避け、共通の処理は１箇所にまとめることで仕様変更が楽で運用しやすいコードになります。
 
-```
-package main.java.objects;
-
-/**
- * ×リスト4.6 攻撃力を表現するクラス
- */
-public class AttackPower {
-  static final int MIN = 0;
-  int value; // finalが付いていないので可変
-
-  public AttackPower(int value) {
-    if (value < MIN) {
-      throw new IllegalArgumentException();
-    }
-
-    this.value = value;
-  }
-
-  /**
-   * ×リスト4.13 攻撃力を変化させるメソッドを追加
-   * 攻撃力を強化する
-   * @param increment 攻撃力の増分
-   */
-  public void reinForce(int increment) {
-    value += increment;
-  }
-
-  /**
-   * ×リスト4.13 攻撃力を変化させるメソッドを追加
-   * 無力化する
-   */
-  public void disable() {
-    value = MIN;
-  }
-
-  public int value() {
-    return value;
-  }
-}
-```
-
-- 👼 良いクラスの構造
-  - インスタンス変数が不変(イミュータブル)な状態になっている。値を変更したい場合は変更する値を引数に持った関数を作成し、引数の値をコンストラクタでセットした新たなインスタンスを返り値とする。
-    - 良い理由: インスタンス変数の初期状態を保つことができ、副作用を防ぐことができる。
-
-
+ 
 # おわりに
