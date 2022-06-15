@@ -24,7 +24,7 @@
 
 # 内容
 こちらが今回作成したゲームの実際のコードになります。
-https://github.com/kdr250/My2DGameSample
+https://github.com/kdr250/good-code-bad-code-sample
 
 こちらのコードでクソゲーになってしまっている原因を現場でありそうなシチュエーションで解説していきます。
 
@@ -37,7 +37,7 @@ PM ) ◯◯くん、このゲームで新しく新しい技を追加すること
 
 .....
 
-◯◯ ）よし、魔法系の技だから[MagicManagerクラス](https://github.com/kdr250/My2DGameSample/blob/a58c9971287de5b182d51363010e6f11bd6b7808/src/main/java/MagicManager.java)見ておけばいいか。追加完了。実行!!
+◯◯ ）よし、魔法系の技だから[MagicManagerクラス](https://github.com/kdr250/good-code-bad-code-sample/blob/main/app/src/main/java/com/example/sample/MagicManager.java)見ておけばいいか。追加完了。実行!!
 
 .....
 
@@ -56,5 +56,12 @@ PM ) ◯◯くん、このゲームで新しく新しい技を追加すること
 
 こういったミスが起こりうるコードはできるだけ避け、共通の処理は１箇所にまとめることで仕様変更が楽で運用しやすいコードになります。
 
+ [条件分岐の追加を忘れているコードの箇所](https://github.com/kdr250/good-code-bad-code-sample/blob/b11ac468e9cdc54a8f976376ca5a009ed329db90/app/src/main/java/com/example/sample/UI.java#L735)
  
 # おわりに
+今回は
+- 6.2.5 条件分岐を１箇所にまとめる
+
+をピックアップして実際に悪いコードが発生させる悪夢を紹介していきました。
+こういった作りになってしまっているコードは世の中に溢れてしまっていると思います。
+あるべき構造を理解して実装やリファクタしていくことで、悪魔のいない世界になることを願っています。
